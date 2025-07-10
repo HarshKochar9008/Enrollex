@@ -1,4 +1,5 @@
 # Enrollex
+![Enrollex Screenshot](https://github.com/HarshKochar9008/Enrollex/blob/f986e27efc8fb5fb83fe60a3c39abb73d5003360/public/student.png)
 
 Enrollex is a modern web application designed to streamline college administration. It enables colleges to manage student registrations, departments, documents, and ID cards—all in one secure platform. The system is optimized for performance and cost, loading pages only when needed.
 
