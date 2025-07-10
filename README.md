@@ -1,70 +1,50 @@
-# Getting Started with Create React App
+# Enrollex
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Enrollex is a modern web application designed to streamline college administration. It enables colleges to manage student registrations, departments, documents, and ID cards—all in one secure platform. The system is optimized for performance and cost, loading pages only when needed.
 
-## Available Scripts
+## Key Features
+- **Smart Registration:** Register students, staff, and admins with photo capture and department selection.
+- **ID & Document Generator:** Generate ID cards, bonafide slips, and documents with QR codes in one click.
+- **Department Control:** Each department can manage its own documents, circulars, and student records.
+- **Admin & Super Admin Panels:** Dedicated interfaces for different administrative roles.
+- **Attendance & Queue Management:** Tools for managing student attendance and queues.
+- **Dark Mode Support:** Modern, accessible UI with light/dark mode toggle.
 
-In the project directory, you can run:
+## System Workflow
+1. **Student Registration:** Student fills the registration form and receives a Student ID.
+2. **Photo Capture:** Student visits the photo room; admin takes a photo and generates an Application Number.
+3. **Document Verification:** Department admin verifies submitted documents.
+4. **Completion:** Once all documents are verified, registration is complete.
 
-### `npm start`
+## Tech Stack
+- React (with React Router)
+- Tailwind CSS
+- Lucide React Icons
+- Other supporting libraries (see `package.json`)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Getting Started
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Run the app in development mode:**
+   ```bash
+   npm start
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. **Build for production:**
+   ```bash
+   npm run build
+   ```
+4. **Run tests:**
+   ```bash
+   npm test
+   ```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Project Structure
+- `src/` – Main source code (components, pages, admin modules)
+- `public/` – Static assets and HTML template
+- `tailwind.config.js` – Tailwind CSS configuration
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Contact
+For support, email: [support@enrollex.com](mailto:support@enrollex.com)
