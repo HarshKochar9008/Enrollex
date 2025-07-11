@@ -1,5 +1,7 @@
 node_modules
-./Backend/credentials.json        
+./Backend/credentials.json  
+./Backend/.env      
+.env        # <-- Added this line
 # dependencies
 /node_modules
 /.pnp

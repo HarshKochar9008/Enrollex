@@ -18,8 +18,10 @@ from functools import wraps
 from twilio.rest import Client
 import random
 from idcard import StudentIDCardGenerator, StudentDataFormatter
+from dotenv import load_dotenv
 
-
+# Load environment variables
+load_dotenv()
 
 # Google Drive imports
 from googleapiclient.discovery import build
@@ -27,18 +29,27 @@ from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
+application = app
 
-application=app
-# Configuration
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-change-this-in-production')
-app.config['MONGO_URI'] = os.getenv('MONGO_URI', 'mongodb+srv://aakashrkl603:Invoicer%402024@jain.r6kcey0.mongodb.net/student_registration')
+# Configuration from environment variables
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+if not app.config['SECRET_KEY']:
+    raise ValueError("SECRET_KEY environment variable is required")
+
+app.config['MONGO_URI'] = os.getenv('MONGO_URI')
+if not app.config['MONGO_URI']:
+    raise ValueError("MONGO_URI environment variable is required")
 
 # CORS configuration for frontend
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # MongoDB configuration
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb+srv://aakashrkl603:Invoicer%402024@jain.r6kcey0.mongodb.net/')
+MONGO_URI = os.getenv('MONGO_URI')
 DATABASE_NAME = os.getenv('DATABASE_NAME', 'student_registration')
+
+# Validate required MongoDB config
+if not MONGO_URI:
+    raise ValueError("MONGO_URI environment variable is required")
 
 # Global variables for lazy connection (fork-safe)
 _client = None
@@ -85,22 +96,29 @@ def get_department_collection(department):
     normalized_dept = normalize_department_name(department)
     return get_collection(normalized_dept)
 
-
 # Cloudinary configuration
 cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'dsncybmbn'),
-    api_key=os.getenv('CLOUDINARY_API_KEY', '944979342921957'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET', '_bEGfD7mOqYPQu1b9-itljpZBJI')
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
+
+# Validate Cloudinary config
+if not all([os.getenv('CLOUDINARY_CLOUD_NAME'), os.getenv('CLOUDINARY_API_KEY'), os.getenv('CLOUDINARY_API_SECRET')]):
+    print("Warning: Cloudinary configuration incomplete. File uploads may not work.")
 
 # Google Drive Configuration
 SCOPES = ['https://www.googleapis.com/auth/drive']
 SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_SERVICE_ACCOUNT_FILE', './credentials.json')
-PARENT_FOLDER_ID = os.getenv('GOOGLE_DRIVE_PARENT_FOLDER_ID', '138KYu0wNaRFKtKmSHxyNfG06H99alkQM')
+PARENT_FOLDER_ID = os.getenv('GOOGLE_DRIVE_PARENT_FOLDER_ID')
 
-# File configuration
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+# Validate Google Drive config
+if not PARENT_FOLDER_ID:
+    print("Warning: GOOGLE_DRIVE_PARENT_FOLDER_ID not set. Document uploads may not work.")
+
+# File configuration from environment
+ALLOWED_EXTENSIONS = set(os.getenv('ALLOWED_EXTENSIONS', 'pdf,png,jpg,jpeg').split(','))
+MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE_MB', '5')) * 1024 * 1024  # Convert MB to bytes
 
 # Document types mapping for better organization
 DOCUMENT_TYPES = {
@@ -114,8 +132,40 @@ DOCUMENT_TYPES = {
     'photographUpload': 'Passport_Photograph'
 }
 
-# JWT token expiration time
-TOKEN_EXPIRATION = timedelta(hours=0.1)
+# JWT token expiration time from environment
+JWT_EXPIRATION_HOURS = float(os.getenv('JWT_EXPIRATION_HOURS', '0.1'))
+TOKEN_EXPIRATION = timedelta(hours=JWT_EXPIRATION_HOURS)
+
+# Twilio Configuration
+TWILIO_SID = os.getenv('TWILIO_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+# Validate Twilio config
+if not all([TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER]):
+    print("Warning: Twilio configuration incomplete. SMS/OTP functionality may not work.")
+
+# Default admin configuration
+DEFAULT_ADMIN_EMAIL = os.getenv('DEFAULT_ADMIN_EMAIL', 'superadmin@college.edu')
+DEFAULT_ADMIN_PASSWORD = os.getenv('DEFAULT_ADMIN_PASSWORD', 'superadmin1234')
+
+# Validate critical configurations on startup
+def validate_config():
+    """Validate that all critical environment variables are set"""
+    required_vars = [
+        'SECRET_KEY',
+        'MONGO_URI'
+    ]
+    
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    
+    if missing_vars:
+        raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+    
+    print("✅ Configuration validation passed")
+
+# Call validation on startup
+validate_config()
 
 # Google Drive Functions
 def get_drive_service():
@@ -470,6 +520,64 @@ def validate_student_data(data):
 @app.route('/')
 def index():
     return {"message": "Student Registration API with Flask, MongoDB & Google Drive", "status": "running"}
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint that verifies configuration"""
+    try:
+        health_status = {
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'services': {}
+        }
+        
+        # Check MongoDB connection
+        try:
+            db = get_db()
+            db.command('ping')
+            health_status['services']['mongodb'] = 'connected'
+        except Exception as e:
+            health_status['services']['mongodb'] = f'error: {str(e)}'
+            health_status['status'] = 'degraded'
+        
+        # Check Cloudinary configuration
+        try:
+            if all([os.getenv('CLOUDINARY_CLOUD_NAME'), os.getenv('CLOUDINARY_API_KEY'), os.getenv('CLOUDINARY_API_SECRET')]):
+                health_status['services']['cloudinary'] = 'configured'
+            else:
+                health_status['services']['cloudinary'] = 'not configured'
+                health_status['status'] = 'degraded'
+        except Exception as e:
+            health_status['services']['cloudinary'] = f'error: {str(e)}'
+        
+        # Check Google Drive configuration
+        try:
+            if PARENT_FOLDER_ID and os.path.exists(SERVICE_ACCOUNT_FILE):
+                health_status['services']['google_drive'] = 'configured'
+            else:
+                health_status['services']['google_drive'] = 'not configured'
+                health_status['status'] = 'degraded'
+        except Exception as e:
+            health_status['services']['google_drive'] = f'error: {str(e)}'
+        
+        # Check Twilio configuration
+        try:
+            if all([TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER]):
+                health_status['services']['twilio'] = 'configured'
+            else:
+                health_status['services']['twilio'] = 'not configured'
+                health_status['status'] = 'degraded'
+        except Exception as e:
+            health_status['services']['twilio'] = f'error: {str(e)}'
+        
+        return jsonify(health_status), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
 
 @app.route('/api/students/register', methods=['POST'])
 def register_student():
@@ -1038,7 +1146,6 @@ def get_id_card_log_collection():
     return get_collection('id_card_generation_logs')
 
 
-# Replace your existing upload_student_documents route with this corrected version:
 @app.route('/api/students/<student_id>/documents', methods=['POST', 'PUT'])
 def upload_student_documents(student_id):
     """
@@ -1292,7 +1399,6 @@ def admin_login():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# Admin Management Routes (All remaining admin routes from the original code)
 @app.route('/api/admins', methods=['GET'])
 @super_admin_required
 def get_admins():
@@ -1555,11 +1661,11 @@ def init_admin():
         if admin_count > 0:
             return jsonify({'success': False, 'error': 'Admins already exist'}), 400
         
-        # Create default super admin
+        # Create default super admin using environment variables
         default_admin = {
             'name': 'Super Admin',
-            'email': 'superadmin@college.edu',
-            'password': generate_password_hash('superadmin1234'),  # Change this in production
+            'email': DEFAULT_ADMIN_EMAIL,
+            'password': generate_password_hash(DEFAULT_ADMIN_PASSWORD),
             'role': 'super_admin',
             'department': None,
             'permissions': ['all'],
@@ -1575,9 +1681,10 @@ def init_admin():
             'success': True,
             'message': 'Default super admin created',
             'credentials': {
-                'email': 'superadmin@college.edu',
-                'password': 'superadmin1234'
-            }
+                'email': DEFAULT_ADMIN_EMAIL,
+                'password': '*** Please check your environment variables ***'
+            },
+            'warning': 'Please change the default password immediately after first login'
         }), 201
         
     except Exception as e:
@@ -1728,35 +1835,33 @@ def get_student_drive_folder(student_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-# Error handlers
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'success': False, 'error': 'Endpoint not found'}), 404
+# OTP Generator
+def generate_otp(length=6):
+    return ''.join([str(random.randint(0, 9)) for _ in range(length)])
 
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({'success': False, 'error': 'Internal server error'}), 500
-
-@app.errorhandler(400)
-def bad_request(error):
-    return jsonify({'success': False, 'error': 'Bad request'}), 400
-
-
-
-TWILIO_SID = 'ACd43b9d687f76427382146996026717cc'
-TWILIO_AUTH_TOKEN = '95ca4ae502af769e2b353311b94b9079'
-TWILIO_PHONE_NUMBER = '+18454795821'
+# Send OTP via SMS
+def send_otp_via_sms(phone_number, otp):
+    """Send OTP via SMS using Twilio"""
+    if not all([TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER]):
+        raise ValueError("Twilio configuration is incomplete")
+    
+    client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
+    print(f"Sending OTP to: {phone_number}")
+    
+    message = client.messages.create(
+        body=f"Your verification code is {otp}. Do not share this with anyone.",
+        from_=TWILIO_PHONE_NUMBER,
+        to=phone_number
+    )
+    return message.sid
 
 @app.route('/api/send-otp', methods=['GET','POST'])
 def otp():
-
-    # Twilio credentials from your account
     try:
-        data= request.get_json()
+        data = request.get_json()
         print(data)
 
-        user_phone=data.get('phoneNumber')
-
+        user_phone = data.get('phoneNumber')
 
         otp = generate_otp()
         print(f"Generated OTP: {otp}")
@@ -1785,8 +1890,6 @@ def otp():
             "error": "Failed to send OTP"
         }), 500
 
-
-
 @app.route('/api/verify-otp', methods=['POST'])
 def verify_otp():
     try:
@@ -1797,7 +1900,6 @@ def verify_otp():
 
         if not user_phone or not otp:
             return jsonify({"success": False, "error": "Phone number and OTP are required"}), 400
-
 
         # Fetch the OTP from the database
         otp_collection = get_otps_collection()
@@ -1815,32 +1917,14 @@ def verify_otp():
         print(f"Error verifying OTP: {e}")
         return jsonify({"success": False, "error": "Failed to verify OTP"}), 500
 
-
-# OTP Generator
-def generate_otp(length=6):
-    return ''.join([str(random.randint(0, 9)) for _ in range(length)])
-
-# Send OTP via SMS
-def send_otp_via_sms(phone_number, otp):
-    client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
-    print(phone_number)
-    message = client.messages.create(
-        body=f" Your verification code is {otp}. Do not share this with anyone.",
-        from_=TWILIO_PHONE_NUMBER,
-        to=phone_number
-    )
-    return message.sid
-
-
-    
-@app.route("/api/attendance/mark" , methods=['POST'])
+@app.route("/api/attendance/mark", methods=['POST'])
 def mark():
-    data= request.get_json()
+    data = request.get_json()
     student_id = data.get('studentId')
-    department= data.get('department')
-    status= data.get('status')
+    department = data.get('department')
+    status = data.get('status')
 
-    student_dept=get_department_collection(department)
+    student_dept = get_department_collection(department)
     student_record = student_dept.find_one({"student_id": student_id})
     if not student_record:
         return jsonify({"success": False, "error": "Student not found"}), 404
@@ -1854,16 +1938,14 @@ def mark():
         return jsonify({"success": False, "error": "Failed to update attendance status"}), 500
     return jsonify({"success": True, "message": "Attendance status updated successfully"}), 200
 
-
 # Add these imports at the top of your file if not already present
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 import tempfile
-from flask import send_file
 
 @app.route('/api/students/<student_id>/print-document', methods=['GET'])
 def generate_admission_document(student_id):
@@ -1945,16 +2027,6 @@ def generate_admission_document(student_id):
             "success": False, 
             "error": "Internal server error"
         }), 500
-
-
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-import tempfile
-import os
 
 def generate_admission_pdf(student, document_data):
     """Generate the provisional admission PDF document"""
@@ -2154,7 +2226,6 @@ def generate_admission_pdf(student, document_data):
         print(f"Error generating PDF: {e}")
         return None
 
-
 def upload_admission_pdf_to_drive(pdf_path, student):
     """Upload generated admission PDF to Google Drive"""
     try:
@@ -2224,6 +2295,19 @@ def upload_admission_pdf_to_drive(pdf_path, student):
                 print(f"Cleaned up temporary file: {pdf_path}")
         except Exception as e:
             print(f"Error cleaning up temporary file: {e}")
+
+# Error handlers
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'success': False, 'error': 'Endpoint not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({'success': False, 'error': 'Internal server error'}), 500
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({'success': False, 'error': 'Bad request'}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)
