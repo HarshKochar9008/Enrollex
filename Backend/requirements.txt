@@ -1,0 +1,42 @@
+# Flask and web framework
+Flask==3.0.0
+flask-cors==4.0.0
+Werkzeug==3.0.1
+
+# Database
+pymongo==4.6.1
+
+# Authentication and security
+PyJWT==2.8.0
+
+# Cloud storage and media
+cloudinary==1.37.0
+
+# SMS/Phone verification
+twilio==8.12.0
+
+# Google Drive integration
+google-api-python-client==2.110.0
+google-auth==2.25.2
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+
+# PDF generation (for admission slips)
+reportlab==4.0.7
+
+# Office document processing (for ID cards)
+python-pptx==0.6.21
+comtypes==1.1.14
+
+# Additional utilities
+python-dotenv==1.0.0
+gunicorn==21.2.0
+
+# Date and time handling
+python-dateutil==2.8.2
+
+# Image processing (optional, for advanced image handling)
+Pillow==10.1.0
+
+# HTTP requests (if needed for external APIs)
+requests==2.31.0
