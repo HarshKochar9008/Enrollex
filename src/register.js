@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 // Configuration for your Flask backend
-const API_BASE_URL = 'https://gbmart.in'; // Adjust as needed
+import { API_BASE_URL } from './setup';
 
 // Move utility components outside to prevent recreation on every render
 const PhoneInput = ({ value, onChange, countryCode, onCountryChange, placeholder, id, name, disabled = false }) => {
