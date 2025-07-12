@@ -14,7 +14,7 @@ const PhoneInput = ({ value, onChange, countryCode, onCountryChange, placeholder
     { code: '+65', country: 'Singapore' }
   ];
 
-  
+
   return (
     <div className="flex">
       <select
@@ -1474,13 +1474,13 @@ export default function StudentRegistration() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <img
-                src="./favicon.ico"
+                src="./Enrollex.png"
                 alt="Dummy UniversityLogo"
                 className="w-20 h-20 object-contain mr-6"
               />
               <div className="text-left">
                 <h1 className="text-base font-medium text-blue-900 leading-tight">
-                  Dummy University
+                  Enrollex University
                 </h1>
               </div>
             </div>
@@ -1532,13 +1532,13 @@ export default function StudentRegistration() {
         <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <img
-                src="./favicon.ico"
+                src="./Enrollex.png"
                 alt="Dummy UniversityLogo"
                 className="w-20 h-20 object-contain mr-6"
               />
               <div className="text-left">
                 <h1 className="text-base font-medium text-blue-900 leading-tight">
-                  Dummy University
+                  Enrollex University
                 </h1>
               </div>
             </div>

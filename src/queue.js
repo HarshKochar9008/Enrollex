@@ -177,7 +177,7 @@ const fetchStudents = async () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <img
-              src="./favicon.ico"
+              src="Enrollex.png" // Replace with actual logo path
               alt="Dummy UniversityLogo"
               className="w-20 h-20 object-contain mr-6"
             />

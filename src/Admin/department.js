@@ -753,13 +753,13 @@ const VerificationModal = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <img
-                src="/favicon.ico"
+                src="/Enrollex.png" // Replace with actual logo path
                 alt="Dummy UniversityLogo"
                 className="w-16 h-16 object-contain"
               />
             </div>
             <h1 className="text-base font-medium text-blue-900 leading-tight">
-              Dummy University<br />
+              Enrollex University<br />
               Faculty of Engineering and Technology (FET)
             </h1>
           </div>
