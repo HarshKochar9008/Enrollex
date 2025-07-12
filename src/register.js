@@ -14,6 +14,7 @@ const PhoneInput = ({ value, onChange, countryCode, onCountryChange, placeholder
     { code: '+65', country: 'Singapore' }
   ];
 
+  
   return (
     <div className="flex">
       <select
