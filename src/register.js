@@ -409,20 +409,20 @@ export default function StudentRegistration() {
 
   const validateStep = (stepIndex) => {
     const requiredFieldsByStep = [
-      // Step 0: Basic & Contact Info
-      ['studentFullName', 'gender', 'dateOfBirth', 'nationality', 'studentContactNo', 'studentEmail', 'parentContactNo'],
-      // Step 1: Address Details
-      ['correspondenceAddress', 'correspondenceCity', 'correspondenceState', 'correspondencePostalCode'],
-      // Step 2: Academic Details
-      ['tenthSchoolName', 'tenthBoardUniversity', 'tenthPassedOutYear', 'collegeInstitutionName', 'boardUniversity', 'twelfthPassedOutYear'],
-      // Step 3: Subject Marks
-      ['twelfthTotalMarks', 'twelfthScoredMarks', 'twelfthPercentage'],
-      // Step 4: Family Information
-      ['fatherName', 'motherName', 'fatherMobile', 'motherMobile'],
-      // Step 5: University Details
-      ['department', 'programName', 'admissionType', 'juApplication'],
-      // Step 6: Documents (at least some required docs)
-      []
+      // // Step 0: Basic & Contact Info
+      // ['studentFullName', 'gender', 'dateOfBirth', 'nationality', 'studentContactNo', 'studentEmail', 'parentContactNo'],
+      // // Step 1: Address Details
+      // ['correspondenceAddress', 'correspondenceCity', 'correspondenceState', 'correspondencePostalCode'],
+      // // Step 2: Academic Details
+      // ['tenthSchoolName', 'tenthBoardUniversity', 'tenthPassedOutYear', 'collegeInstitutionName', 'boardUniversity', 'twelfthPassedOutYear'],
+      // // Step 3: Subject Marks
+      // ['twelfthTotalMarks', 'twelfthScoredMarks', 'twelfthPercentage'],
+      // // Step 4: Family Information
+      // ['fatherName', 'motherName', 'fatherMobile', 'motherMobile'],
+      // // Step 5: University Details
+      // ['department', 'programName', 'admissionType', 'juApplication'],
+      // // Step 6: Documents (at least some required docs)
+      // []
     ];
 
     const required = requiredFieldsByStep[stepIndex] || [];
@@ -437,62 +437,62 @@ export default function StudentRegistration() {
     }
 
     // Additional validation for specific steps
-    if (stepIndex === 0) {
-      // Step 0: Basic Info - Also check OTP verification
-      if (!otpVerified) {
-        return 'Please verify the parent\'s phone number with OTP before proceeding to the next step.';
-      }
+    // if (stepIndex === 0) {
+    //   // Step 0: Basic Info - Also check OTP verification
+    //   if (!otpVerified) {
+    //     return 'Please verify the parent\'s phone number with OTP before proceeding to the next step.';
+    //   }
       
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (formData.studentEmail && !emailRegex.test(formData.studentEmail)) {
-        return 'Please enter a valid email address.';
-      }
+    //   // Validate email format
+    //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //   if (formData.studentEmail && !emailRegex.test(formData.studentEmail)) {
+    //     return 'Please enter a valid email address.';
+    //   }
       
-      // Validate phone number (basic check)
-      if (formData.studentContactNo && formData.studentContactNo.length < 10) {
-        return 'Please enter a valid contact number (at least 10 digits).';
-      }
+    //   // Validate phone number (basic check)
+    //   if (formData.studentContactNo && formData.studentContactNo.length < 10) {
+    //     return 'Please enter a valid contact number (at least 10 digits).';
+    //   }
       
-      if (formData.parentContactNo && formData.parentContactNo.length < 10) {
-        return 'Please enter a valid parent contact number (at least 10 digits).';
-      }
-    }
+    //   if (formData.parentContactNo && formData.parentContactNo.length < 10) {
+    //     return 'Please enter a valid parent contact number (at least 10 digits).';
+    //   }
+    // }
     
-    if (stepIndex === 2) {
-      // Step 2: Academic Details - Validate years
-      const currentYear = new Date().getFullYear();
-      if (formData.tenthPassedOutYear && (formData.tenthPassedOutYear > currentYear || formData.tenthPassedOutYear < currentYear - 15)) {
-        return 'Please enter a valid 10th passed out year.';
-      }
-      if (formData.twelfthPassedOutYear && (formData.twelfthPassedOutYear > currentYear || formData.twelfthPassedOutYear < currentYear - 10)) {
-        return 'Please enter a valid 12th passed out year.';
-      }
-    }
+    // if (stepIndex === 2) {
+    //   // Step 2: Academic Details - Validate years
+    //   const currentYear = new Date().getFullYear();
+    //   if (formData.tenthPassedOutYear && (formData.tenthPassedOutYear > currentYear || formData.tenthPassedOutYear < currentYear - 15)) {
+    //     return 'Please enter a valid 10th passed out year.';
+    //   }
+    //   if (formData.twelfthPassedOutYear && (formData.twelfthPassedOutYear > currentYear || formData.twelfthPassedOutYear < currentYear - 10)) {
+    //     return 'Please enter a valid 12th passed out year.';
+    //   }
+    // }
     
-    if (stepIndex === 3) {
-      // Step 3: Subject Marks - Validate marks are reasonable
-      const totalMarks = parseFloat(formData.twelfthTotalMarks);
-      const scoredMarks = parseFloat(formData.twelfthScoredMarks);
+    // if (stepIndex === 3) {
+    //   // Step 3: Subject Marks - Validate marks are reasonable
+    //   const totalMarks = parseFloat(formData.twelfthTotalMarks);
+    //   const scoredMarks = parseFloat(formData.twelfthScoredMarks);
       
-      if (totalMarks && scoredMarks && scoredMarks > totalMarks) {
-        return 'Scored marks cannot be greater than total marks.';
-      }
+    //   if (totalMarks && scoredMarks && scoredMarks > totalMarks) {
+    //     return 'Scored marks cannot be greater than total marks.';
+    //   }
       
-      if (formData.twelfthPercentage && (formData.twelfthPercentage < 0 || formData.twelfthPercentage > 100)) {
-        return 'Please enter a valid percentage (0-100).';
-      }
-    }
+    //   if (formData.twelfthPercentage && (formData.twelfthPercentage < 0 || formData.twelfthPercentage > 100)) {
+    //     return 'Please enter a valid percentage (0-100).';
+    //   }
+    // }
     
-    if (stepIndex === 4) {
-      // Step 4: Family Info - Validate phone numbers
-      if (formData.fatherMobile && formData.fatherMobile.length < 10) {
-        return 'Please enter a valid father\'s mobile number (at least 10 digits).';
-      }
-      if (formData.motherMobile && formData.motherMobile.length < 10) {
-        return 'Please enter a valid mother\'s mobile number (at least 10 digits).';
-      }
-    }
+    // if (stepIndex === 4) {
+    //   // Step 4: Family Info - Validate phone numbers
+    //   if (formData.fatherMobile && formData.fatherMobile.length < 10) {
+    //     return 'Please enter a valid father\'s mobile number (at least 10 digits).';
+    //   }
+    //   if (formData.motherMobile && formData.motherMobile.length < 10) {
+    //     return 'Please enter a valid mother\'s mobile number (at least 10 digits).';
+    //   }
+    // }
 
     // If there are missing required fields, return error message
     if (missingFields.length > 0) {
