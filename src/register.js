@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Configuration for your Flask backend
 import { API_BASE_URL } from './setup';
@@ -114,6 +116,7 @@ const InputField = ({ label, name, type = 'text', required = false, placeholder 
 );
 
 export default function StudentRegistration() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [studentData, setStudentData] = useState(null);
@@ -794,6 +797,13 @@ export default function StudentRegistration() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('studentRegistration');
+    setStudentData(null);
+    setMessage('');
+    navigate('/');
+  };
+
   const ConfirmDialog = () => {
     if (!showConfirmDialog) return null;
     return (
@@ -1470,8 +1480,8 @@ export default function StudentRegistration() {
     return (
       <div className="min-h-screen bg-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header with Logo */}
-          <div className="text-center mb-8">
+          {/* Header with Logo and Logout */}
+          <div className="text-center mb-8 relative">
             <div className="flex items-center justify-center mb-4">
               <img
                 src="./Enrollex.png"
@@ -1484,6 +1494,15 @@ export default function StudentRegistration() {
                 </h1>
               </div>
             </div>
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="absolute top-0 right-0 flex items-center gap-2 px-4 py-2  text-black rounded-lg text-lg  font-medium transition-colors shadow-sm"
+              title="Logout and return to home"
+            >
+              <LogOut size={20} />
+            </button>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
