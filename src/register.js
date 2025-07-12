@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-
-// Configuration for your Flask backend
-const API_BASE_URL = 'http://localhost:5000'; // Adjust as needed
+import { API_BASE_URL } from './setup';
 
 // Move utility components outside to prevent recreation on every render
 const PhoneInput = ({ value, onChange, countryCode, onCountryChange, placeholder, id, name, disabled = false }) => {
@@ -667,9 +665,29 @@ export default function StudentRegistration() {
   };
 
   // OTP Functions
+  const testBackendConnection = async () => {
+    try {
+      console.log('Testing backend connection to:', `${API_BASE_URL}/`);
+      const response = await fetch(`${API_BASE_URL}/`);
+      const data = await response.json();
+      console.log('Backend health check response:', data);
+      return true;
+    } catch (error) {
+      console.error('Backend connection test failed:', error);
+      return false;
+    }
+  };
+
   const sendOtp = async () => {
     if (!formData.parentContactNo || formData.parentContactNo.trim() === '') {
       setMessage('Please enter parent\'s phone number first');
+      return;
+    }
+
+    // Test backend connection first
+    const isBackendAccessible = await testBackendConnection();
+    if (!isBackendAccessible) {
+      setMessage('Error: Cannot connect to server. Please check your internet connection.');
       return;
     }
 
@@ -677,8 +695,13 @@ export default function StudentRegistration() {
     setMessage('Sending OTP...');
 
     try {
+      // Debug: Log the URL being used
+      const otpUrl = `${API_BASE_URL}/api/send-otp`;
+      console.log('Sending OTP to:', otpUrl);
+      console.log('API_BASE_URL:', API_BASE_URL);
+      
       // Simulate API call to send OTP
-      const response = await fetch(`${API_BASE_URL}/api/send-otp`, {
+      const response = await fetch(otpUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -687,7 +710,13 @@ export default function StudentRegistration() {
         }),
       });
 
+      console.log('Request body:', {
+        phoneNumber: `${parentPhoneCountry}${formData.parentContactNo}`,
+        type: 'parent_verification'
+      });
+
       const data = await response.json();
+      console.log('OTP response:', data);
 
       if (response.ok && data.success) {
         setOtpSent(true);
@@ -695,15 +724,27 @@ export default function StudentRegistration() {
         setCanResendOtp(false);
         setMessage('OTP sent successfully! Please check your phone.');
       } else {
+        console.error('OTP send failed:', data);
         setMessage(data.error || 'Failed to send OTP. Please try again.');
       }
     } catch (error) {
       console.error('OTP send error:', error);
-      // For demo purposes, simulate successful OTP send
-      setOtpSent(true);
-      setOtpTimer(60);
-      setCanResendOtp(false);
-      setMessage('OTP sent successfully! Please check your phone. (Demo: Use 123456)');
+      console.error('Error details:', {
+        message: error.message,
+        type: error.type,
+        name: error.name,
+        stack: error.stack
+      });
+      
+      // Check if it's a network error
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        setMessage('Network error: Unable to connect to server. Please check your internet connection.');
+      } else {
+        setMessage(`Error: ${error.message || 'Failed to send OTP. Please try again.'}`);
+      }
+      
+      // For demo purposes, allow using 123456 as OTP when backend fails
+      console.log('For demo purposes, you can use OTP: 123456');
     } finally {
       setOtpLoading(false);
     }
@@ -741,6 +782,12 @@ export default function StudentRegistration() {
     } catch (error) {
       console.error('OTP verify error:', error);
       // For demo purposes, accept 123456 as valid OTP
+      if (otp === '123456') {
+        setOtpVerified(true);
+        setMessage('✅ Parent phone number verified successfully! (Demo mode)');
+      } else {
+        setMessage('Error: Unable to verify OTP. Please try again.');
+      }
     } finally {
       setOtpLoading(false);
     }
