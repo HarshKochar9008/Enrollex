@@ -1,6 +1,7 @@
 // App.js
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Analytics } from "@vercel/analytics/react"
 import Home from './home';
 import StudentRegistration from './register';
 import PhotoAdminPage from './Admin/Photo'
@@ -13,17 +14,20 @@ import LandingPage from './LandingPage';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/register" element={<StudentRegistration />} />
-      <Route path='/admin/photo' element={<PhotoAdminPage />} />
-      <Route path='/admin/attendance' element={<AttendanceAdminPage />} />
-      <Route path="/admin/department/:department" element={<DepartmentAdminPage />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/super" element={<SuperAdminPage />} />
-      <Route path="/queue" element={<NextStudentQueue />} />
-      {/* Add more routes as needed */}
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/register" element={<StudentRegistration />} />
+        <Route path='/admin/photo' element={<PhotoAdminPage />} />
+        <Route path='/admin/attendance' element={<AttendanceAdminPage />} />
+        <Route path="/admin/department/:department" element={<DepartmentAdminPage />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/super" element={<SuperAdminPage />} />
+        <Route path="/queue" element={<NextStudentQueue />} />
+        {/* Add more routes as needed */}
+      </Routes>
+      <Analytics />
+    </>
   );
 }
 
